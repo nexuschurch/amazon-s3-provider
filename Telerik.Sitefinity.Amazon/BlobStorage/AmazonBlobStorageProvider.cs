@@ -54,7 +54,7 @@ namespace Telerik.Sitefinity.Amazon.BlobStorage
         /// <returns>The resolved content item's external URL on the remote blob storage.</returns>
         public override string GetItemUrl(IBlobContentLocation content)
         {
-            return string.Concat("http://", this.bucketName, ".s3.amazonaws.com/", content.FilePath);
+            return string.Concat("https://", this.bucketName, ".s3.amazonaws.com/", content.FilePath);
         }
 
         /// <summary>
