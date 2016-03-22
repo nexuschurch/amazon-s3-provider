@@ -129,6 +129,11 @@ namespace Telerik.Sitefinity.Amazon.BlobStorage
         /// <returns>The length of the uploaded stream.</returns>
         public override long Upload(IBlobContent content, Stream source, int bufferSize)
         {
+            if(bufferSize < 5242880)
+            {
+                bufferSize = 6291456;
+            }
+
             var request = new TransferUtilityUploadRequest()
             {
                 BucketName = this.bucketName,
