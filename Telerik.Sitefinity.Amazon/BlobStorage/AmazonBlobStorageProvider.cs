@@ -43,7 +43,7 @@ namespace Telerik.Sitefinity.Amazon.BlobStorage
             if ((string.IsNullOrWhiteSpace(regionEndpointString)) || (endpointField == null))
                 throw new ConfigurationException("'{0}' is required.".Arrange(RegionEndpointKey));
 
-            var regionEndpoint = (RegionEndpoint)endpointField.GetValue(null);
+            var regionEndpoint = (RegionEndpoint) endpointField.GetValue(null);
             this.transferUtility = new TransferUtility(accessKeyId, secretKey, regionEndpoint);
         }
 
@@ -84,7 +84,8 @@ namespace Telerik.Sitefinity.Amazon.BlobStorage
         public override void SetProperties(IBlobContentLocation location, IBlobProperties properties)
         {
             //No properties to set by default
-            var req = new CopyObjectRequest() { 
+            var req = new CopyObjectRequest()
+            {
                 MetadataDirective = S3MetadataDirective.REPLACE,
                 SourceBucket = this.bucketName,
                 SourceKey = location.FilePath,
@@ -95,7 +96,7 @@ namespace Telerik.Sitefinity.Amazon.BlobStorage
 
             req.Headers.CacheControl = properties.CacheControl;
             req.Headers.ContentType = properties.ContentType;
-            
+
             transferUtility.S3Client.CopyObject(req);
         }
 
@@ -108,8 +109,8 @@ namespace Telerik.Sitefinity.Amazon.BlobStorage
         {
             var request = new GetObjectRequest()
             {
-               BucketName = this.bucketName,
-               Key = location.FilePath
+                BucketName = this.bucketName,
+                Key = location.FilePath
             };
             GetObjectResponse response = transferUtility.S3Client.GetObject(request);
 
@@ -129,27 +130,23 @@ namespace Telerik.Sitefinity.Amazon.BlobStorage
         /// <returns>The length of the uploaded stream.</returns>
         public override long Upload(IBlobContent content, Stream source, int bufferSize)
         {
-            if(bufferSize < 5242880)
-            {
-                bufferSize = 6291456;
-            }
 
             var request = new TransferUtilityUploadRequest()
             {
                 BucketName = this.bucketName,
-                Key = content.FilePath, 
-                PartSize = bufferSize,
+                Key = content.FilePath,
+                PartSize = 6291456,
                 ContentType = content.MimeType,
                 CannedACL = S3CannedACL.PublicRead
             };
- 
+
             //get it before the upload, because afterwards the stream is closed already
             long sourceLength = source.Length;
             using (MemoryStream str = new MemoryStream())
             {
                 source.CopyTo(str);
                 request.InputStream = str;
- 
+
                 this.transferUtility.Upload(request);
             }
             return sourceLength;
@@ -174,8 +171,8 @@ namespace Telerik.Sitefinity.Amazon.BlobStorage
         {
             TransferUtilityOpenStreamRequest request = new TransferUtilityOpenStreamRequest()
             {
-               BucketName = this.bucketName,
-               Key = content.FilePath
+                BucketName = this.bucketName,
+                Key = content.FilePath
             };
             var stream = this.transferUtility.OpenStream(request);
             return stream;
@@ -213,7 +210,7 @@ namespace Telerik.Sitefinity.Amazon.BlobStorage
                 return true;
             }
             catch (AmazonS3Exception err)
-            { 
+            {
             }
             return false;
         }
